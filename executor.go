@@ -1,19 +1,18 @@
 package exec
 
 import (
+	"context"
 	"errors"
 	"io"
 )
 
-type Environ []string
-
 type Command interface {
-	Start() error
+	Start(ctx context.Context) error
 	Stop() error
 }
 
 type Interpreter interface {
-	Cmd(config Config) Command
+	Cmd(config Config, ctx context.Context) (Command, error)
 }
 
 var interpreters map[string]Interpreter
@@ -42,7 +41,7 @@ type Executor struct {
 	cmd    Command
 }
 
-func (self *Executor) Start() error {
+func (self *Executor) Start(ctx context.Context) (err error) {
 	if self.cmd != nil {
 		return errors.New("already started")
 	}
@@ -50,18 +49,20 @@ func (self *Executor) Start() error {
 
 	var intp Interpreter
 	if conf.Interpreter == nil || len(conf.Interpreter) == 0 {
-		intp = &binary{}
+		intp = &shell{}
 	} else if len(conf.Interpreter) > 0 {
 		if i, o := interpreters[conf.Interpreter[0]]; o {
 			intp = i
 		} else {
-			intp = &binary{}
+			intp = &shell{}
 		}
 	}
 
-	self.cmd = intp.Cmd(conf)
+	if self.cmd, err = intp.Cmd(conf, ctx); err != nil {
+		return err
+	}
 
-	return self.cmd.Start()
+	return self.cmd.Start(ctx)
 }
 
 func (self *Executor) Stop() error {
