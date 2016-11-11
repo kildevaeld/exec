@@ -20,6 +20,7 @@ var interpreters map[string]Interpreter
 
 type Config struct {
 	Cmd         []string
+	Script      string
 	Env         Environ
 	WorkDir     string
 	Interpreter []string
@@ -54,8 +55,6 @@ func (self *Executor) Start() error {
 		if i, o := interpreters[conf.Interpreter[0]]; o {
 			intp = i
 		} else {
-			conf.Cmd = append(conf.Interpreter, conf.Cmd...)
-
 			intp = &binary{}
 		}
 	}
