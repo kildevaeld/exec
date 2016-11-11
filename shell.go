@@ -51,7 +51,7 @@ func (self *shell) Cmd(config Config, ctx context.Context) (Command, error) {
 				args = []string{"-c"}
 			}
 		}
-		args = append(args, config.Script)
+		args = append(args, config.Script, "--")
 	} else if len(config.Cmd) > 0 {
 		if path == "" {
 			path = config.Cmd[0]
@@ -62,6 +62,10 @@ func (self *shell) Cmd(config Config, ctx context.Context) (Command, error) {
 
 	} else {
 		return nil, errors.New("No command or no script")
+	}
+
+	if config.Args != nil {
+		args = append(args, config.Args...)
 	}
 
 	cmd = exec.CommandContext(ctx, path, args...)

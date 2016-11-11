@@ -19,6 +19,7 @@ var interpreters map[string]Interpreter
 
 type Config struct {
 	Cmd         []string
+	Args        []string
 	Script      string
 	Env         Environ
 	WorkDir     string
