@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"io"
+	"os/user"
 )
 
 type Command interface {
@@ -24,6 +25,7 @@ type Config struct {
 	Env         Environ
 	WorkDir     string
 	Interpreter []string
+	User        *user.User
 	Stdout      io.Writer
 	Stderr      io.Writer
 	Stdin       io.Reader

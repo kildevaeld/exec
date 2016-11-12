@@ -4,6 +4,10 @@ import (
 	"context"
 	"errors"
 	"os/exec"
+	"os/user"
+	"strconv"
+
+	"syscall"
 )
 
 type WrapCommand struct {
@@ -77,5 +81,59 @@ func (self *shell) Cmd(config Config, ctx context.Context) (Command, error) {
 	cmd.Dir = config.WorkDir
 	cmd.Env = config.Env
 
+	cmd.SysProcAttr = &syscall.SysProcAttr{
+		Setsid: true,
+	}
+
+	if config.User != nil {
+		var (
+			err   error
+			creds *syscall.Credential
+		)
+
+		if creds, err = getCredentials(config.User); err != nil {
+			return nil, err
+		}
+
+		cmd.SysProcAttr.Credential = creds
+
+	}
+
 	return &WrapCommand{cmd, false}, nil
+}
+
+func getCredentials(user *user.User) (*syscall.Credential, error) {
+	var (
+		i int
+		g int
+		e error
+	)
+
+	if i, e = strconv.Atoi(user.Uid); e != nil {
+		return nil, e
+	}
+
+	if g, e = strconv.Atoi(user.Gid); e != nil {
+		return nil, e
+	}
+
+	groupids, err := user.GroupIds()
+	if err != nil {
+		return nil, err
+	}
+
+	var gids []uint32
+	for _, gid := range groupids {
+		if g, e = strconv.Atoi(gid); e != nil {
+			return nil, e
+		} else {
+			gids = append(gids, uint32(g))
+		}
+	}
+
+	return &syscall.Credential{
+		Uid:    uint32(i),
+		Gid:    uint32(g),
+		Groups: gids,
+	}, nil
 }
