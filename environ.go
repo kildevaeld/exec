@@ -17,10 +17,22 @@ func (self Environ) ToMap() map[string]string {
 	return env
 }
 
+
 func MapToEnviron(m map[string]string) Environ {
 	var out Environ
 	for k, v := range m {
 		out = append(out, k+"="+v)
+	}
+	return out
+}
+
+func MergeEnviron(env ...Environ) Environ {
+	var out map[string]string
+	for _, e := range env {
+		m := e.ToMap()
+		for k, v := range m {
+			out[k] = v
+		}
 	}
 	return out
 }
