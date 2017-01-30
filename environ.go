@@ -27,7 +27,7 @@ func MapToEnviron(m map[string]string) Environ {
 }
 
 func MergeEnviron(env ...Environ) Environ {
-	var out map[string]string
+	out := make(map[string]string)
 	for _, e := range env {
 		m := e.ToMap()
 		for k, v := range m {
