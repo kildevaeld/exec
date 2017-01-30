@@ -34,5 +34,5 @@ func MergeEnviron(env ...Environ) Environ {
 			out[k] = v
 		}
 	}
-	return out
+	return MapToEnviron(out)
 }
