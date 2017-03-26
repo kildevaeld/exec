@@ -18,12 +18,19 @@ type Interpreter interface {
 
 var interpreters map[string]Interpreter
 
+// Run config
 type Config struct {
-	Cmd         []string
-	Args        []string
-	Script      string
-	Env         Environ
-	WorkDir     string
+	// Command and arguments to run
+	Cmd []string
+	// Extra arguments
+	Args []string
+	// Inline script
+	Script string
+	// Environment
+	Env Environ
+	// Working dir
+	WorkDir string
+	// Interpreter and arguments
 	Interpreter []string
 	User        *user.User
 	Stdout      io.Writer
@@ -37,6 +44,7 @@ func Register(name string, i Interpreter) {
 
 func init() {
 	interpreters = make(map[string]Interpreter)
+	interpreters["shell"] = &shell{}
 }
 
 type Executor struct {
@@ -50,15 +58,11 @@ func (self *Executor) Start(ctx context.Context) (err error) {
 	}
 	conf := self.config
 
-	var intp Interpreter
-	if conf.Interpreter == nil || len(conf.Interpreter) == 0 {
-		intp = &shell{}
-	} else if len(conf.Interpreter) > 0 {
-		if i, o := interpreters[conf.Interpreter[0]]; o {
-			intp = i
-		} else {
-			intp = &shell{}
-		}
+	intp := interpreters["shell"]
+	if conf.Interpreter == nil {
+		intp = interpreters["shell"]
+	} else if i, o := interpreters[conf.Interpreter[0]]; o {
+		intp = i
 	}
 
 	if self.cmd, err = intp.Cmd(conf, ctx); err != nil {

@@ -77,7 +77,6 @@ func (self *shell) Cmd(config Config, ctx context.Context) (Command, error) {
 	cmd.Stderr = config.Stderr
 	cmd.Stdout = config.Stdout
 	cmd.Stdin = config.Stdin
-
 	cmd.Dir = config.WorkDir
 	cmd.Env = config.Env
 

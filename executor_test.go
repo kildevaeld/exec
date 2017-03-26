@@ -10,12 +10,12 @@ import (
 func TestExecutor(t *testing.T) {
 
 	conf := Config{
-		Stdout:      os.Stdout,
-		Stderr:      os.Stderr,
-		Stdin:       os.Stdin,
-		Interpreter: []string{"node", "-e"},
-		//Cmd:         []string{"echo", "hello, world"},
-		Script: "setTimeout(function () {console.log('helloe')}, 10000)",
+		Stdout: os.Stdout,
+		Stderr: os.Stderr,
+		Stdin:  os.Stdin,
+		//Interpreter: []string{"node", "-e"},
+		Cmd: []string{"env"},
+		//Script: "setTimeout(function () {console.log('helloe'); console.log(process.env)}, 1000)",
 	}
 
 	e := New(conf)
